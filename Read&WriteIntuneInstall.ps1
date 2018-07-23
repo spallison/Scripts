@@ -1,3 +1,11 @@
+#Author: Simon Allison 
+#Author Blog: http://simonallison.blog
+#Author Company:  Havant & South Downs College (www.hsdc.ac.uk) 
+
+#Description Built for Read and Write Gold 12 for Intune Deployment 
+
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
 $URL = "http://fastdownloads2.texthelp.com/readwrite12/installers/uk/setup.zip"
 $InstallerPath = "C:\Temp\Installers\"
 $File = "Setup.zip"
@@ -5,6 +13,15 @@ $File2 = "Read&Write.exe"
 $Path = $installerPath + "\" + $File
 $Path2 = $installPath + "\" + $File2
 $InstallPath = "C:\Temp\Installers\Setup"
+
+
+
+function Unzip
+{
+    param([string]$zipfile, [string]$outpath)
+
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
+}
 
 
 $InstallCheck = Join-Path ([System.Environment]::GetFolderPath("ProgramFilesX86")) "TextHelp\Read and Write 12\ReadAndWrite.exe"
@@ -17,7 +34,6 @@ if (!(Test-Path -PathType Container -Path $installPath)) {
         Throw "Failed to create Installer Directory"
     }
 }
-
 
 
 if(!(Test-Path $installCheck)) {
@@ -33,16 +49,6 @@ if(!(Test-Path $installCheck)) {
          Throw "Failed to install Package"
      }       
 }
-
-
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-function Unzip
-{
-    param([string]$zipfile, [string]$outpath)
-
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
-}
-
 
 
 if (! (Test-Path "$ENV:SystemDrive\Users\Default\AppData\Roaming\Texthelp\ReadAndWrite\12"))
