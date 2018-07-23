@@ -11,7 +11,7 @@ $InstallerPath = "C:\Temp\Installers\"
 $File = "Setup.zip"
 $File2 = "Read&Write.exe" 
 $Path = $installerPath + "\" + $File
-$Path2 = $installPath + "\" + $File2
+$Path2 = $installPath + "\" + $File2 + "/S" 
 $InstallPath = "C:\Temp\Installers\Setup"
 
 
