@@ -6,6 +6,7 @@
 #Version 4.0 
 
 #Silent Intall Read & Write Gold v12 
+#Make sure you assign "All Users" or some users under Assignments - Powershell scripts run only for Users 
 
 #Check if Software is installed 
 $CheckRW = Join-Path ([System.Environment]::GetFolderPath("ProgramFilesX86")) "TextHelp\Read and Write 12\ReadAndWrite.exe"
