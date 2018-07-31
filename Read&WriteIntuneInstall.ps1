@@ -3,57 +3,36 @@
 #Author Company:  Havant & South Downs College (www.hsdc.ac.uk) 
 
 #Description Built for Read and Write Gold 12 for Intune Deployment 
+#Version 4.0 
 
-Add-Type -AssemblyName System.IO.Compression.FileSystem
+#Silent Intall Read & Write Gold v12 
 
-$URL = "http://fastdownloads2.texthelp.com/readwrite12/installers/uk/setup.zip"
-$InstallerPath = "C:\Temp\Installers\"
-$File = "Setup.zip"
-$File2 = "Read&Write.exe" 
-$Path = $installerPath + "\" + $File
-$Path2 = $installPath + "\" + $File2 + "/S" 
-$InstallPath = "C:\Temp\Installers\Setup"
+#Check if Software is installed 
+$CheckRW = Join-Path ([System.Environment]::GetFolderPath("ProgramFilesX86")) "TextHelp\Read and Write 12\ReadAndWrite.exe"
 
-
-
-function Unzip
-{
-    param([string]$zipfile, [string]$outpath)
-
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
-}
-
-
-$InstallCheck = Join-Path ([System.Environment]::GetFolderPath("ProgramFilesX86")) "TextHelp\Read and Write 12\ReadAndWrite.exe"
-
-if (!(Test-Path -PathType Container -Path $installPath)) {
-    Try {
-        New-Item $installPath -ItemType Directory -ErrorAction Stop
-    }
-    Catch {
-        Throw "Failed to create Installer Directory"
-    }
-}
-
-
-if(!(Test-Path $installCheck)) {
+if(!(Test-Path $CheckRW)) {
      try {
-        $down = New-Object System.Net.WebClient
-        $down.DownloadFile($URL,$Path)
-        $unzip = Unzip $Path $InstallPath
-        $exec = New-Object -com shell.application
-        $exec.shellexecute($Path2) 
-        $regadd = reg add "HKLM\SOFTWARE\WOW6432Node\Texthelp\Read&Write" /v "ProductCode" /t REG_SZ /d "CODE GOES HERE" /f
-     }
-     catch {
+        $archive = 'C:\Temp\Installers\Setup.zip'
+        $Install = 'C:\Temp\Installers\Setup'
+        $url = 'http://fastdownloads2.texthelp.com/readwrite12/installers/uk/setup.zip'
+        Invoke-WebRequest $url -OutFile $archive -UseBasicParsing
+        Expand-Archive -Path $archive -DestinationPath $Install
+        $Install = 'C:\Temp\Installers\Setup'
+        Start-Process "$Install\Read&Write.exe" -ArgumentList "/S /v/qn" -Wait -Passthru
+
+Remove-Item -path $archive -Recurse
+
+Remove-Item -path $Install -Recurse
+
+#Replace CODE GOES HERE with your Product Code  
+reg add "HKLM\SOFTWARE\WOW6432Node\Texthelp\Read&Write" /v "ProductCode" /t REG_SZ /d "CODE GOES HERE" /f
+}
+catch {
          Throw "Failed to install Package"
      }       
+
 }
 
-
-if (! (Test-Path "$ENV:SystemDrive\Users\Default\AppData\Roaming\Texthelp\ReadAndWrite\12"))
-{
- mkdir "$ENV:SystemDrive\Users\Default\AppData\Roaming\Texthelp\ReadAndWrite\12"
-}
- 
-Copy-Item -Path "$InstallerPath\RWSettings.xml" -Destination "$ENV:SystemDrive\Users\Default\AppData\Roaming\Texthelp\ReadAndWrite\12\" -Force
+# Open Firewall Ports for .exe - to get rid of the prompt for users.   
+New-NetFirewallRule -DisplayName "Read&Write 12" -Direction Inbound -Program "${ENV:ProgramFiles(x86)}\texthelp\read and write 12\readandwrite.exe" -Protocol tcp -Action Allow
+New-NetFirewallRule -DisplayName "Read&Write 12" -Direction Inbound -Program "${ENV:ProgramFiles(x86)}\texthelp\read and write 12\readandwrite.exe" -Protocol udp -Action Allow
